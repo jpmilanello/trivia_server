@@ -1,5 +1,9 @@
 class QuestionsController < ApplicationController
-	def fetch_user
+	def set_access_control_headers 
+		headers['Access-Control-Allow-Origin'] = '*' 
+		headers['Access-Control-Request-Method'] = '*' 
+	end
+	def fetch_question
     	@question = Question.find_by_id(params[:id])
   	end
 	def index
@@ -10,13 +14,14 @@ class QuestionsController < ApplicationController
 	    end
 	end
 	def show
+		@question = Question.find_by_id(params[:id])
     	respond_to do |format|
       		format.json { render json: @question }
       		format.xml { render xml: @question }
     	end
   	end
 	def create
-		@question = Question.new(params[:question])
+		@question = Question.new(question_params)
 	    respond_to do |format|
 	      	if @question.save
 	        	format.json { render json: @question, status: :created }
@@ -28,8 +33,9 @@ class QuestionsController < ApplicationController
 	    end
 	end
 	def update
+		@question = Question.find_by_id(params[:id])
     	respond_to do |format|
-      		if @question.update_attributes(params[:question])
+      		if @question.update_attributes(question_params)
         		format.json { head :no_content, status: :ok }
         		format.xml { head :no_content, status: :ok }
       		else
@@ -39,6 +45,7 @@ class QuestionsController < ApplicationController
    		end
   	end
 	def destroy
+		@question = Question.find_by_id(params[:id])
 	    respond_to do |format|
 	      	if @question.destroy
 	        	format.json { head :no_content, status: :ok }
@@ -49,4 +56,7 @@ class QuestionsController < ApplicationController
 	      	end
 	    end
 	 end
+	def question_params
+      params.require(:question).permit(:id, :description, :answer, :option1, :option2, :option3)
+    end
 end
